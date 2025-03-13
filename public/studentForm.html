@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            width: 320px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .dropdown input {
+            width: 100%;
+            cursor: pointer;
+            background-color: #f9f9f9;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .dropdown-content label {
+            display: block;
+            padding: 5px;
+        }
+        .dropdown-content label:hover {
+            background-color: #f1f1f1;
+        }
+        .warning {
+            color: red;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("eventDropdown").addEventListener("click", function() {
+                let dropdownMenu = document.getElementById("dropdown-menu");
+                dropdownMenu.style.display = (dropdownMenu.style.display === "block") ? "none" : "block";
+            });
+
+            document.addEventListener("click", function(event) {
+                if (!event.target.closest(".dropdown")) {
+                    document.getElementById("dropdown-menu").style.display = "none";
+                }
+            });
+
+            const checkboxes = document.querySelectorAll('input[name="events"]');
+            const selectedEvents = document.getElementById("selectedEvents");
+            const warningMessage = document.getElementById("warning");
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", function() {
+                    let selected = [];
+                    checkboxes.forEach(chk => {
+                        if (chk.checked) selected.push(chk.value);
+                    });
+
+                    if (selected.length > 2) {
+                        this.checked = false;
+                        warningMessage.style.display = "block";
+                    } else {
+                        warningMessage.style.display = "none";
+                    }
+
+                    selectedEvents.value = selected.join(", ");
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="form-container"></div>
+    <h2>Event Registration</h2>
+    <form id="registrationForm" action="/student/register" method="POST" enctype="multipart/form-data">
+        <h3>Student 1</h3>
+        <input type="text" name="student1Name" placeholder="Student 1 Name" required>
+        <input type="text" name="student1URN" placeholder="URN" required>
+        <label>Upload Image:</label>
+        <input type="file" name="student1Image" accept="image/jpeg" required>
+
+        <h3>Student 2</h3>
+        <input type="text" name="student2Name" placeholder="Student 2 Name" required>
+        <input type="text" name="student2URN" placeholder="URN" required>
+        <label>Upload Image:</label>
+        <input type="file" name="student2Image" accept="image/jpeg" required>
+
+        <label>Select Events:</label>
+        <div class="dropdown" id="eventDropdown">
+            <input type="text" id="selectedEvents" name="selectedEvents" placeholder="Select Events" readonly required>
+            <div id="dropdown-menu" class="dropdown-content">
+                <label><input type="checkbox" name="events" value="100M"> 100M</label>
+                <label><input type="checkbox" name="events" value="200M"> 200M</label>
+                <label><input type="checkbox" name="events" value="400M"> 400M</label>
+                <label><input type="checkbox" name="events" value="800M"> 800M</label>
+                <label><input type="checkbox" name="events" value="1500M"> 1500M</label>
+                <label><input type="checkbox" name="events" value="3000M"> 3000M</label>
+                <label><input type="checkbox" name="events" value="100MH"> 100MH</label>
+                <label><input type="checkbox" name="events" value="400MH"> 400MH</label>
+                <label><input type="checkbox" name="events" value="Long Jump"> Long Jump</label>
+                <label><input type="checkbox" name="events" value="Triple Jump"> Triple Jump</label>
+                <label><input type="checkbox" name="events" value="High Jump"> High Jump</label>
+                <label><input type="checkbox" name="events" value="Shot Put"> Shot Put</label>
+                <label><input type="checkbox" name="events" value="Discuss Throw"> Discuss Throw</label>
+                <label><input type="checkbox" name="events" value="Javelin Throw"> Javelin Throw</label>
+            </div>
+        </div>
+        <p id="warning" class="warning">⚠️ You can only select up to 2 events.</p>
+
+        <button type="submit">Submit</button>
+    </form>
+    <script>
+        // Check if "showRelayButton" is in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("showRelayButton")) {
+            const relayButton = document.createElement("button");
+            relayButton.innerText = "Proceed to Relay Registration";
+            relayButton.style.cssText = "margin-top: 10px; padding: 10px; background: blue; color: white; border: none; cursor: pointer;";
+            relayButton.onclick = function () {
+                window.location.href = "/relay-registration"; // Change this to your relay registration route
+            };
+            
+            // Append the button to the form container
+            document.getElementById("form-container").appendChild(relayButton);
+        }
+    </script>
+    
+</body>
+</html>
