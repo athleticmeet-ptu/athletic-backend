@@ -46,10 +46,11 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
 
-  if (req.method === "OPTIONS") {
-    res.status(204).end(); // Ensures response includes CORS headers
-    return;
-  }
+ if (req.method === "OPTIONS") {
+  res.status(200).json({ message: "Preflight OK" }); // ✅ 200 OK response
+  return;
+}
+
 
   next();
 });
