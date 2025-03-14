@@ -38,12 +38,26 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: process.env.CLIENT_ORIGIN || "https://ptu.gndecathletix.games",
-    credentials: true,
-  })
-);
+app.use((req, res, next) => {
+  const allowedOrigins = [process.env.CLIENT_ORIGIN || "https://ptu.gndecathletix.games"];
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+  }
+
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // ✅ Properly handle OPTIONS preflight request
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204); // 204 is better than 200, means 'No Content'
+  } else {
+    next();
+  }
+});
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default-secret",
