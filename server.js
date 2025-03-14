@@ -81,5 +81,9 @@ app.use("/", authRoutes);
 app.use("/student", studentRoutes);
 app.use("/relay", relayRoutes);
 
-// Start Server
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.get("/", (req, res) => {
+  res.send("🚀 API Running Successfully!");
+});
+
+// Vercel ke liye module export karein (❌ app.listen hata diya)
+module.exports = app;
