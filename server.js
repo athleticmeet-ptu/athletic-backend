@@ -38,22 +38,12 @@ connectDB();
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  const allowedOrigin = process.env.CLIENT_ORIGIN || "https://ptu.gndecathletix.games";
-  
-  res.header("Access-Control-Allow-Origin", allowedOrigin);
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
 
- if (req.method === "OPTIONS") {
-  res.status(200).json({ message: "Preflight OK" }); // ✅ 200 OK response
-  return;
-}
+app.use(cors({
+  origin: "https://ptu.gndecathletix.games", // ✅ Exact domain specify karo
+  credentials: true // ✅ Cookies allow karne ke liye
+}));
 
-
-  next();
-});
 
 
 app.use(
