@@ -13,13 +13,19 @@ const router = express.Router();
 
 // ✅ Middleware to check session auth
 const authMiddleware = (req, res, next) => {
-  if (req.session.collegeName && req.session.username) {
+  const collegeName = req.headers.collegename; // Frontend se aayega
+  const username = req.headers.username; // Frontend se aayega
+
+  if (collegeName && username) {
+    req.collegeName = collegeName; // Request me attach kar rahe
+    req.username = username;
     next();
   } else {
-    console.log("Session Data:", req.session);
-    res.status(401).json({ message: 'Unauthorized' });
+    console.log("Unauthorized Request - Missing Credentials", req.headers);
+    res.status(401).json({ message: "Unauthorized" });
   }
 };
+
 
 // ✅ Middleware to check if URN already registered in 2 events
 const urnValidationMiddleware = async (req, res, next) => {
