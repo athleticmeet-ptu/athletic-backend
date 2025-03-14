@@ -285,7 +285,7 @@ const uploadFields = upload.fields([
 // ✅ POST: Register students for an event
 router.post("/register", authMiddleware, urnValidationMiddleware, uploadFields, async (req, res) => {
   try {
-    const collegeName = req.session.collegeName;
+    const collegeName = req.headers.collegename;
     const {
       events,
       student1Name, student1URN, student1Gmail, student1FatherName, student1age, student1PhoneNumber,
