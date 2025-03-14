@@ -110,11 +110,6 @@ router.get("/event-status/:event", authMiddleware, async (req, res) => {
       return res.status(400).json({ status: "error", message: "College name missing" });
     }
 
-    // If authMiddleware rejects the request, check if token validation is required
-    if (!req.user) { // Assuming user is set in middleware
-      return res.status(401).json({ status: "error", message: "Unauthorized" });
-    }
-
     const lockDoc = await MaleEventLock.findOne({ collegeName });
 
     if (lockDoc && lockDoc.eventsLocked[event]) {
