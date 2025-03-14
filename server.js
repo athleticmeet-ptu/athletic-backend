@@ -60,8 +60,14 @@ app.use(
     secret: process.env.SESSION_SECRET || "default-secret",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: true,  // HTTPS ke liye required
+      httpOnly: true,
+      sameSite: "None",  // Cross-site requests allow karne ke liye zaroori
+    },
   })
 );
+
 
 // Cloudinary Config
 cloudinary.config({
