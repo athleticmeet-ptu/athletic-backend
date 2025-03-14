@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
     // ✅ Session details response me send kar rahe hain
     res.json({
       success: true,
-      redirect: "/studentform",
+      redirect: "/home",
       user: {
         username: user.username,
         collegeName: user.collegeName,
