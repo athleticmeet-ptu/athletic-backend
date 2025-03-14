@@ -11,13 +11,23 @@ const router = express.Router();
 
 // ✅ Authentication Middleware
 const authMiddleware = (req, res, next) => {
-  if (req.session.collegeName && req.session.username) {
+  console.log("Received Headers:", req.headers); // Yeh dekho headers aa rahe hain ya nahi
+
+  const username = req.headers["username"] || req.headers["Username"];
+const collegeName = req.headers["collegename"] || req.headers["Collegename"];
+
+
+  if (collegeName && username) {
+    req.collegeName = collegeName;
+    req.username = username;
     next();
   } else {
-    console.log("Session Data:", req.session);
-    res.status(401).json({ message: 'Unauthorized' });
+    console.log("Unauthorized Request - Missing Credentials", req.headers);
+    res.status(401).json({ message: "Unauthorized" });
   }
 };
+
+
 
 // ✅ Cloudinary Multer Setup
 const storage = new CloudinaryStorage({
@@ -59,12 +69,11 @@ router.get("/check-urn/:urn", async (req, res) => {
   }
 });
 
-module.exports = router;
 // ✅ GET Relay Event Lock Status
 router.get("/relay-status/:event", authMiddleware, async (req, res) => {
   try {
     const { event } = req.params;
-    const collegeName = req.session.collegeName;
+    const collegeName = req.headers.collegename;
 
     const lockDoc = await RelayLock.findOne({ collegeName });
 
