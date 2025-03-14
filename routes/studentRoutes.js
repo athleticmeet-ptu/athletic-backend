@@ -67,29 +67,28 @@ const urnValidationMiddleware = async (req, res, next) => {
 };
 
 // ✅ GET: Registration count for a URN
-router.get("/registration-count/:urn", async (req, res) => {
-  const { urn } = req.params;
-
+router.get("/event-status/:event", authMiddleware, async (req, res) => {
   try {
-    const individualCount = await Student.countDocuments({
-      $or: [
-        { "students.student1.urn": urn },
-        { "students.student2.urn": urn },
-      ],
-    });
+    const { event } = req.params;
+    const collegeName = req.headers.collegename; // Frontend se bhejna hoga
 
-    const relayCount = await RelayStudent.countDocuments({
-      "students.urn": urn,
-    });
+    if (!collegeName) {
+      return res.status(400).json({ status: "error", message: "College name missing" });
+    }
 
-    const total = individualCount + relayCount;
+    const lockDoc = await MaleEventLock.findOne({ collegeName });
 
-    res.json({ count: total });
+    if (lockDoc && lockDoc.eventsLocked[event]) {
+      return res.json({ status: "locked" });
+    } else {
+      return res.json({ status: "unlocked" });
+    }
   } catch (error) {
-    console.error("Error fetching registration count:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("❌ Error fetching event lock status:", error);
+    res.status(500).json({ status: "error", message: "Server error" });
   }
 });
+
 
 // ✅ GET: Event lock status for a college
 router.get("/event-status/:event", authMiddleware, async (req, res) => {
