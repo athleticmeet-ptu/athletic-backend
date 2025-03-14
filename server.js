@@ -62,12 +62,13 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",  // HTTPS ke liye required
-      httpOnly: true,
-      sameSite: "None",  // Cross-site requests allow karne ke liye zaroori
+      secure: process.env.NODE_ENV === "production" ? true : false, // ✅ Local pe false, production pe true
+      httpOnly: false, // ✅ Frontend access ke liye false karein
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ✅ Local testing ke liye Lax
     },
   })
 );
+
 
 
 // Cloudinary Config
