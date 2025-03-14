@@ -90,11 +90,19 @@ router.get("/event-status/:event", authMiddleware, async (req, res) => {
 });
 
 
-// ✅ GET: Event lock status for a college
 router.get("/event-status/:event", authMiddleware, async (req, res) => {
   try {
     const { event } = req.params;
-    const collegeName = req.session.collegeName;
+    const collegeName = req.headers.collegename;
+
+    if (!collegeName) {
+      return res.status(400).json({ status: "error", message: "College name missing" });
+    }
+
+    // If authMiddleware rejects the request, check if token validation is required
+    if (!req.user) { // Assuming user is set in middleware
+      return res.status(401).json({ status: "error", message: "Unauthorized" });
+    }
 
     const lockDoc = await MaleEventLock.findOne({ collegeName });
 
@@ -108,6 +116,7 @@ router.get("/event-status/:event", authMiddleware, async (req, res) => {
     res.status(500).json({ status: "error", message: "Server error" });
   }
 });
+
 
 // ✅ GET: List students based on event/college
 router.get("/students", async (req, res) => {
