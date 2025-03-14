@@ -15,8 +15,9 @@ const router = express.Router();
 const authMiddleware = (req, res, next) => {
   console.log("Received Headers:", req.headers); // Yeh dekho headers aa rahe hain ya nahi
 
-  const collegeName = req.headers.collegename;
-  const username = req.headers.username;
+  const username = req.headers["username"] || req.headers["Username"];
+const collegeName = req.headers["collegename"] || req.headers["Collegename"];
+
 
   if (collegeName && username) {
     req.collegeName = collegeName;
