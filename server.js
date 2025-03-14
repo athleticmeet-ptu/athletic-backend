@@ -62,7 +62,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: true,  // HTTPS ke liye required
+      secure: process.env.NODE_ENV === "production",  // HTTPS ke liye required
       httpOnly: true,
       sameSite: "None",  // Cross-site requests allow karne ke liye zaroori
     },
