@@ -3,7 +3,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
-const MongoStore = require("connect-mongo");
 const cors = require("cors");
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -56,23 +55,19 @@ app.use((req, res, next) => {
   next();
 });
 
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "default-secret",
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI,
-      collectionName: "sessions",
-    }),
     cookie: {
-      secure: process.env.NODE_ENV === "production", // HTTPS ke liye required
+      secure: process.env.NODE_ENV === "production",  // HTTPS ke liye required
       httpOnly: true,
-      sameSite: "None", // Cross-site requests allow karne ke liye zaroori
+      sameSite: "None",  // Cross-site requests allow karne ke liye zaroori
     },
   })
 );
-
 
 
 // Cloudinary Config
