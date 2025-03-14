@@ -32,17 +32,24 @@ router.post("/login", async (req, res) => {
   req.session.username = user.username;
   req.session.collegeName = user.collegeName;
 
-  // ✅ Debugging Session
-  console.log("Session After Login:", req.session);
-
   req.session.save((err) => {
     if (err) {
       console.error("Session Save Error:", err);
       return res.status(500).json({ error: "Session not saved" });
     }
-    res.json({ success: true, redirect: "/studentform" });
+
+    // ✅ Session details response me send kar rahe hain
+    res.json({
+      success: true,
+      redirect: "/studentform",
+      user: {
+        username: user.username,
+        collegeName: user.collegeName,
+      },
+    });
   });
 });
+
 
 
 router.get("/user-info", (req, res) => {
