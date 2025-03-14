@@ -24,14 +24,26 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username });
+
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ error: "Invalid Username or Password" });
-  }else{
+  }
 
   req.session.username = user.username;
   req.session.collegeName = user.collegeName;
-  res.json({ success: true, redirect: "/studentform" });}
+
+  // ✅ Debugging Session
+  console.log("Session After Login:", req.session);
+
+  req.session.save((err) => {
+    if (err) {
+      console.error("Session Save Error:", err);
+      return res.status(500).json({ error: "Session not saved" });
+    }
+    res.json({ success: true, redirect: "/studentform" });
+  });
 });
+
 
 router.get("/user-info", (req, res) => {
   if (!req.session.username) {
