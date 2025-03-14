@@ -13,11 +13,13 @@ const router = express.Router();
 
 // ✅ Middleware to check session auth
 const authMiddleware = (req, res, next) => {
-  const collegeName = req.headers.collegename; // Frontend se aayega
-  const username = req.headers.username; // Frontend se aayega
+  console.log("Received Headers:", req.headers); // Yeh dekho headers aa rahe hain ya nahi
+
+  const collegeName = req.headers.collegename;
+  const username = req.headers.username;
 
   if (collegeName && username) {
-    req.collegeName = collegeName; // Request me attach kar rahe
+    req.collegeName = collegeName;
     req.username = username;
     next();
   } else {
