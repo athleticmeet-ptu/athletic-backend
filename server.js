@@ -72,9 +72,10 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "student_images",
-    allowed_formats: ["jpg", "jpeg"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "bmp", "tiff", "svg", "heic"],
   },
 });
+
 const upload = multer({ storage });
 
 // Routes
