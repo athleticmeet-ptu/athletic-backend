@@ -96,7 +96,7 @@ router.post("/register", authMiddleware, uploadFields,async (req, res) => {
     console.log("REQ BODY ===>", req.body);
     console.log("REQ FILES ===>", req.files);
 
-    const collegeName = req.session.collegeName;
+    const collegeName = req.headers.collegename;
     const event = req.body.relayEvent;
 
     if (!event || !collegeName) {
@@ -191,7 +191,7 @@ router.post("/register", authMiddleware, uploadFields,async (req, res) => {
 // ✅ GET Registered Teams for Logged-in College
 router.get("/students", authMiddleware, async (req, res) => {
   try {
-    const collegeName = req.session.collegeName;
+    const collegeName = req.headers.collegename;
     const { event } = req.query;
 
     const filter = { collegeName };
