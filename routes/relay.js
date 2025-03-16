@@ -34,7 +34,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "relay_students",
-    allowed_formats: ["jpg", "jpeg", "png"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "bmp", "tiff", "svg", "heic"],
   },
 });
 
