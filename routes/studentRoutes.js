@@ -87,11 +87,8 @@ router.get("/registration-count/:urn", async (req, res) => {
       ],
     });
 
-    const relayCount = await RelayStudent.countDocuments({
-      "students.urn": urn,
-    });
 
-    const total = individualCount + relayCount;
+    const total = individualCount;
 
     res.json({ count: total });
   } catch (error) {
