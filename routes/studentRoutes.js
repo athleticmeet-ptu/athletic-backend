@@ -148,6 +148,9 @@ router.get("/students", async (req, res) => {
 
 
 router.get("/export", async (req, res) => {
+  console.log("Export API started...");
+  const startTime = Date.now(); // ⏱️ Start time
+
   try {
     const { collegeName, event } = req.query;
 
@@ -164,56 +167,60 @@ router.get("/export", async (req, res) => {
       relayFilter.event = event;
     }
 
-    const students = await Student.find(studentFilter);
-    const relayStudents = await RelayStudent.find(relayFilter);
+    console.log("Fetching students and relay students...");
+    const [students, relayStudents] = await Promise.all([
+      Student.find(studentFilter),
+      RelayStudent.find(relayFilter),
+    ]);
+    console.log(`Fetched ${students.length} students and ${relayStudents.length} relay teams`);
 
     const combinedData = [];
 
-    // Individual Students Loop
-    for (let entry of students) {
-      const student1 = entry.students.student1;
-      const jersey1 = await Jersey.findOne({ urn: student1.urn });
+    const processStart = Date.now();
 
-      combinedData.push({
+    const studentPromises = students.flatMap((entry) => {
+      const promises = [];
+
+      const p1 = Jersey.findOne({ urn: entry.students.student1.urn }).then((jersey1) => ({
         Event: entry.event,
         College: entry.collegeName,
-        Name: student1.name,
-        URN: student1.urn,
-        Gmail: student1.gmail,
-        FatherName: student1.fatherName,
-        Age: student1.age,
-        PhoneNumber: student1.phoneNumber,
+        Name: entry.students.student1.name,
+        URN: entry.students.student1.urn,
+        Gmail: entry.students.student1.gmail,
+        FatherName: entry.students.student1.fatherName,
+        Age: entry.students.student1.age,
+        PhoneNumber: entry.students.student1.phoneNumber,
         JerseyNumber: jersey1 ? jersey1.jerseyNumber : "N/A",
-        ImageURL: student1.idCard || "",   // ✅ Assuming idCard = Image URL
+        ImageURL: entry.students.student1.idCard || "",
         Type: "Individual Event",
-      });
+      }));
+
+      promises.push(p1);
 
       if (entry.students.student2 && entry.students.student2.name) {
-        const student2 = entry.students.student2;
-        const jersey2 = await Jersey.findOne({ urn: student2.urn });
-
-        combinedData.push({
+        const p2 = Jersey.findOne({ urn: entry.students.student2.urn }).then((jersey2) => ({
           Event: entry.event,
           College: entry.collegeName,
-          Name: student2.name,
-          URN: student2.urn,
-          Gmail: student2.gmail,
-          FatherName: student2.fatherName,
-          Age: student2.age,
-          PhoneNumber: student2.phoneNumber,
+          Name: entry.students.student2.name,
+          URN: entry.students.student2.urn,
+          Gmail: entry.students.student2.gmail,
+          FatherName: entry.students.student2.fatherName,
+          Age: entry.students.student2.age,
+          PhoneNumber: entry.students.student2.phoneNumber,
           JerseyNumber: jersey2 ? jersey2.jerseyNumber : "N/A",
-          ImageURL: student2.idCard || "",  // ✅ Assuming idCard = Image URL
+          ImageURL: entry.students.student2.idCard || "",
           Type: "Individual Event",
-        });
+        }));
+
+        promises.push(p2);
       }
-    }
 
-    // Relay Students Loop
-    for (let team of relayStudents) {
-      for (let student of team.students) {
-        const jersey = await Jersey.findOne({ urn: student.urn });
+      return promises;
+    });
 
-        combinedData.push({
+    const relayPromises = relayStudents.flatMap((team) =>
+      team.students.map((student) =>
+        Jersey.findOne({ urn: student.urn }).then((jersey) => ({
           Event: team.event,
           College: team.collegeName,
           Name: student.name,
@@ -223,13 +230,22 @@ router.get("/export", async (req, res) => {
           Age: student.age,
           PhoneNumber: student.phoneNumber,
           JerseyNumber: jersey ? jersey.jerseyNumber : "N/A",
-          ImageURL: student.image || "", // ✅ Relay students already have image field
+          ImageURL: student.image || "",
           Type: "Relay Event",
-        });
-      }
-    }
+        }))
+      )
+    );
+
+    console.log("Processing jersey numbers...");
+    const results = await Promise.all([...studentPromises, ...relayPromises]);
+
+    const processEnd = Date.now();
+    console.log(`Processing complete in ${(processEnd - processStart) / 1000} seconds`);
+
+    combinedData.push(...results);
 
     if (combinedData.length === 0) {
+      console.log("No data found for the given filters");
       return res.status(404).json({ message: "No data found for the given filters" });
     }
 
@@ -247,14 +263,17 @@ router.get("/export", async (req, res) => {
       "Type",
     ];
 
+    console.log("Generating CSV...");
     const opts = { fields };
     const parser = new Parser(opts);
     const csv = parser.parse(combinedData);
 
+    const endTime = Date.now();
+    console.log(`Export API finished in ${(endTime - startTime) / 1000} seconds`);
+
     res.header("Content-Type", "text/csv");
     res.attachment("students_data.csv");
     res.send(csv);
-
   } catch (error) {
     console.error("Export error:", error);
     res.status(500).json({ message: "Failed to export data" });
