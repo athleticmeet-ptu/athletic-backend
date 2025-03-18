@@ -263,17 +263,28 @@ router.get("/export", async (req, res) => {
       "Type",
     ];
 
-    console.log("Generating CSV...");
+   console.log("Generating CSV...");
     const opts = { fields };
     const parser = new Parser(opts);
-    const csv = parser.parse(combinedData);
-
+    const csvData = parser.parse(combinedData);
+    
+    // 👇 Yeh lines add karo custom heading ke liye 👇
+    const headerLines = [
+      "26th Annual IKGPTU Athletic Championship",
+      `Event Name: ${event || "All Events"}`,
+      "", // ek blank line spacing ke liye
+    ];
+    
+    // Final CSV data banaya by combining heading aur actual csv data
+    const customCsv = `${headerLines.join("\n")}\n${csvData}`;
+    // 👆 Yeh ho gaya complete custom CSV 👆
+    
     const endTime = Date.now();
     console.log(`Export API finished in ${(endTime - startTime) / 1000} seconds`);
-
+    
     res.header("Content-Type", "text/csv");
     res.attachment("students_data.csv");
-    res.send(csv);
+    res.send(customCsv);  // Yeh bhej raha hai updated CSV with heading
   } catch (error) {
     console.error("Export error:", error);
     res.status(500).json({ message: "Failed to export data" });
